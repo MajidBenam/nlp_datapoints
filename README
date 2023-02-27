@@ -1,0 +1,227 @@
+Read this to get an idea what I am going to doi:
+
+- I am going to bring in all the HTML files from seshat.info (Wiki) and seshatdatabrowser.
+
+Number of PDF files found: 1182
+Number of PDF files with matching TXT files larger than 0.1KB: 1159
+Number of PDF files with a small matching TXT file: 10
+Number of PDF files with no matching TXT files: 13
+
+This is the script to take a backup of the full database on AWS: EC2
+pg_dumpall -U postgres > seshatdbqing_backup_$(date +%F).sql
+
+
+To copy the file from aws to my machine:
+
+scp -i /home/majid/dev/AWS/seshat-beta-key-pair.pem -r seshat/ ubuntu@ec2-52-59-251-143.eu-central-1.compute.amazonaws.com:seshat-qing/seshat
+
+scp -i /home/majid/dev/AWS/seshat-beta-key-pair.pem ubuntu@ec2-52-59-251-143.eu-central-1.compute.amazonaws.com:/home/ubuntu/sql_backups/seshatdbqing_backup_2023-02-15.sql /home/majid/dev/aws_sql_backups/
+
+
+pg_restore --schema-only -d copyofqws ../aws_sql_backups/seshatdbqing_backup_2023-02-15.sql
+
+- I can collect data on the variable<---> MAJIDBENAM_REF in a separate JSON FILE with key values as: {'REF_16_AfDurrn': 'Destruction',} . Along the way, I should prepare trimmed texts for jaccendian similarity checks and also bring a second guess for those small citations (Coady 2006, 123).
+
+- I will then be able to run the code for every website and engage in other tasks.
+
+- In the meantime, I can collect another set of data on the refs that have downloadabale PDF. A connection between a zotero link and its PDF situation. Key values will be like: 
+{"BGU7E45A": {
+                                  "has_PDF": True,
+                                  "pdf_searchable": True,
+                                  "local_folder": "QWC8712R",
+                              } ,
+
+- based on the data I already have (+ a better trimmed and matched citation text), I need to cross check the REF_123_AfDurrn s against the Zotero databank and find similarities and certainties and all.
+
+- An Ultimate task is to update the toy website information.   
+
+######################
+I believe I have to put all the decent references in a databse first, and then use the page numbers data. So, 
+- I will keep page numbers at how they are. 
+- I will go and find all unique refernces, using the new similarity function and our Zotero refernces.
+- If something has a zotero and is of length > 30, all its relatives also get that zotero???
+- Remember to start tsting on a smaller data sample. Big data makes you crazy.
+- I should also take care of the multiple refs inside one ref number. Separate with ";" and then add criteria (already there: four digit number, potentially add: a page_numbers locator.) or do some other thing
+
+First thing tomorrow: Take care of the Jenny things.
+##########################
+
+* Wiki files will be from July 2022.
+* Databrowser files will be from Jan 2023.
+
+The idea is to build two separate list of the datapouints in both files:
+
+An NLP datapoint will have the following information:
+
+- 1  * polity_name (AfDurrn, YeZiyad, etc.)
+- 1  * var_name (Judges, Population, etc.) 
+- 1+ * var_value (absent, unknown, present, 5000, etc.)  :: this will need cleaning.
+- 1  * is_it_on_wiki (True, False)
+- 1  * is_it_on_browser (True, False)
+- 1- * ref (Gakpo. 2006, Savbeti, 2004: The ups and downs of life, etc. )
+- 1- * ref_order_wiki (ref 13)
+- 1- * ref_order_browser (ref 16)
+- 1- * var_text (As poer our research there were Judges in AfdUrnn, etc)
+- 1- * var_ref_pages (13, 15-19)
+- 1- * ref_has_better_value (True, False)
+- 1- * ref_better_vale (Coady, 2006  ---> Lefts and Rights of Life, Coady, 2006, Rabbit Publications)
+- 1  * ref_has_visible_zotero (True, False)
+- 1  * ref_visible_zotero ("BGSERZYQ", etc. or "HAS_NO_ZOTERO"
+
+
+
+
+
+In order to get the job done, I need to bring the necessary files and the functions that I have written and used through time.
+
+- STEP0: Bring in the Full HTML FILES
+- STEP1: Make simpler HTML files removing all the unneeded and noise data.
+- MAke sure you check for the last <p> tags that might appear at the end of HTML files and might contain useful information for expanding the shorter references: (Coady, 2006  ---> Lefts and Rights of Life, Coady, 2006, Rabbit Publications)
+- Before scraping the files, make sure you ignore values such as RA, Expert, etc, that do not have any meaningful scientific info in them.
+- Scrape the smaller HTML files, and look for these info:
+[polity_name, var_name, var_value, has_ref, ref_order]
+
+
+
+
+-----------------
+Examples:
+__________
+
+
+Polity: AfGhurd
+Variable: Enslavement
+Value (confidence): present (inferred)
+Description: "As many as 60,000 inhabitants of Ghazna were massacred, and according to the Ghurid chronicler, al-Juzjani, the prisoners were forced to carry building materials from Ghazna to Firuzkuh, where the mud was mixed with their blood to build the towers of Ghur." 
+
+extra_desc (added by RAs for sentiments on the text): "At least temporarily."
+
+Is_desc_an_exact_quote: True
+
+Reference:
+David Thomas. Firuzkuh. The summer capital of the Ghurids. Amira K Bennison. Alison L Gascoigne. eds. 2007. Cities in the Pre-Modern Islamic World: The Urban Impact of Religion, State and Society. Routledge. London.
+
+Ref_no: 129
+Ref_has_page_number: False
+Ref_PDF_is_downloadable: True
+Ref_PDF_is_searchable: True
+Ref_has_Zotero_ID: xxxx
+Ref_has_PDF_in_Zotero: xxxx 
+
+
+-------------------------------
+Polity: AfGhurd
+on_wiki: True
+on_browser: False
+Variable: Destruction
+Value (confidence): present (Evidenced)
+Description: "Ala al-Din Husayn attacked Ghazna, capital of the eponymous Ghaznavid dynasty. The city reputedly burned for seven days, earning Ala al-Din the sobriquet 'Jahan-Suz' (World Incendiary)."
+
+extra_desc (added by RAs for sentiments on the quote): None.
+Is_desc_an_exact_quote: True
+
+Reference:
+David Thomas. Firuzkuh. The summer capital of the Ghurids. Amira K Bennison. Alison L Gascoigne. eds. 2007. Cities in the Pre-Modern Islamic World: The Urban Impact of Religion, State and Society. Routledge. London.
+
+Ref_no: 131
+Ref_has_page_number: False
+Ref_PDF_is_downloadable: True
+Ref_PDF_is_searchable: True
+Ref_has_Zotero_ID: xxxx
+Ref_has_PDF_in_Zotero: xxxx 
+-------
+Polity: AfGhurd
+on_wiki: True
+on_browser: False
+Variable: Destruction
+Value (confidence): present (Evidenced)
+Description: "In the 1170s the Ghurid ruler appointed his brother, Muhammad, governor of Ghaznah and encouraged him to raid in India. ... in alliance with a Hindu ruler, he reduced Lahore and replaced the last of the Ghaznavid dynasty."
+
+extra_desc (added by RAs for sentiments on the quote): None.
+Is_desc_an_exact_quote: (Seems to be), because of quotation marks?
+
+Reference:
+(Hodgson 1977, 276) Marshall G S Hodgson. 1977. The Venture of Islam, Volume 2: The Expansion of Islam in the Middle Periods. Volume 2. University of Chicago Press. Chicago.
+
+Ref_no: 132
+Ref_has_page_number: True
+Ref_PDF_is_downloadable: False (buyable!)
+Ref_PDF_is_searchable: Most Probably no (old document).
+Ref_has_Zotero_ID: xxxx
+Ref_has_PDF_in_Zotero: xxxx 
+------
+Polity: AfGhurd
+on_wiki: True
+on_browser: False
+Variable: Destruction
+Value (confidence): present (Evidenced)
+Description: "About 1,000 temples were destroyed in Banaras and mosques were raised on their sites."
+
+extra_desc (added by RAs for sentiments on the quote): None.
+Is_desc_an_exact_quote: True
+
+Reference:
+(Mahajan 1965, 63) Vidya Dhar Mahajan. 1965. Muslim Rule in India. S. Chand.
+
+Ref_no: 133
+Ref_has_page_number: True
+Ref_PDF_is_downloadable: False (buyable!)
+Ref_PDF_is_searchable: Most Probably no (old document).
+Ref_has_Zotero_ID: xxxx
+Ref_has_PDF_in_Zotero: xxxx 
+---------
+Polity: AfGhurd
+on_wiki: True
+on_browser: False
+Variable: Destruction
+Value (confidence): present (Evidenced)
+Description: In Bihar 1197 CE monasteries destroyed and thousands of monks killed
+
+extra_desc (added by RAs for sentiments on the quote): None.
+Is_desc_an_exact_quote: False (also no use of quotation marks indicating that)
+
+- What_is_the_exact_qute?
+- While Qutab-ud-din Aibak was thus busy, one of his commanders named Ikhtiyar-uddin Muhammad bin Bakhiyar Khiji was planning the invasion of Bihar and Bengal. The Commander was a snooping specimen of the genus with his arms reaching up to the calves of his legs while standing erect. With these long arms, he reached the easternmost parts of Northern India. In 1197 A.D., he organized an attack against Bihar with 200 horsemen. Odantapuri, the capital of Bihar, was looted and plundered . Raja Indruman was a coward and without giving a fight, he ran way. The Buddhist moasteries in Bihar were destroyed . Thousand of monks were put to the sword.
+
+Reference:
+Nayak ????) Nayak, Ganeswar. ????. Political and Administrative History of Medieval India (1526-1707). SKCG College Paralakhemundi.
+
+Ref_no: 134
+Ref_has_page_number: False (it is actually page 26)
+Ref_PDF_is_downloadable: True
+Ref_PDF_is_searchable: True
+Ref_has_Zotero_ID: xxxx
+Ref_has_PDF_in_Zotero: xxxx 
+
+
+----------------------------------------
+Polity: AfGhurd
+on_wiki: True
+on_browser: False
+Variable: Imprisonment
+Value (confidence): unknown (suspected)
+Description: "As many as 60,000 inhabitants of Ghazna were massacred, and according to the Ghurid chronicler, al-Juzjani, the prisoners were forced to carry building materials from Ghazna to Firuzkuh, where the mud was mixed with their blood to build the towers of Ghur." 
+
+extra_desc (added by RAs for sentiments on the text): "Presumably they didn't stay prisoners.."
+
+Is_desc_an_exact_quote: True
+
+Reference:
+David Thomas. Firuzkuh. The summer capital of the Ghurids. Amira K Bennison. Alison L Gascoigne. eds. 2007. Cities in the Pre-Modern Islamic World: The Urban Impact of Religion, State and Society. Routledge. London.
+
+Ref_no: 130
+Ref_has_page_number: False
+Ref_PDF_is_downloadable: True
+Ref_PDF_is_searchable: True
+Ref_has_Zotero_ID: xxxx
+Ref_has_PDF_in_Zotero: xxxx 
+-----------------------------------------
+
+
+
+
+
+
+
+
+
