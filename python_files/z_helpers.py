@@ -2473,9 +2473,11 @@ def find_the_year_plus(a_str):
     else:
         return []
     
-def find_second_and_third_guess(file_dir):
+def find_second_and_third_guess(file_dir, max_text_length):
     """
     Takes the folder name and returns the augmented version with second and third guesses
+
+    we can probably extend to fourth guesses by looking into the trimmedTexts themselves
     """
     with open(f"json_files/extra_ps_at_the_end_for_{file_dir}.json") as f1:
         extras = json.load(f1)
@@ -2512,7 +2514,7 @@ def find_second_and_third_guess(file_dir):
             #if polity_name == "CnNWei*":
             #    print(x)
             #    print("***********")
-            if len(x) < 50 and item["hasPersonalComment"] ==False:
+            if len(x) < max_text_length and item["hasPersonalComment"] ==False:
                 shorties+=1
                 # find the year
                 the_year_plus_in_shortie =  find_the_year_plus(x)
@@ -2638,5 +2640,8 @@ def find_second_and_third_guess(file_dir):
     print(two_hits_third, " out of ", shorties, " had two unique Hits.  (on third chance)")
     print(more_hits_third, " out of ", shorties, " had more than two unique Hits. (on third chance)")
     #print(third_chances, " out of ", shorties, " had a third Hit (a hit on another polity page).")
+
+    with open(f"augmented_citations_of_max_length_{max_text_length}_with_second_and_third_chances_for_{file_dir}.json", "w") as outfile:
+        json.dump(details, outfile)
 
     return details
