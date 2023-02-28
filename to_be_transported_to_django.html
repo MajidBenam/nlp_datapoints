@@ -1,0 +1,922 @@
+{% extends "core/seshat-base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block content %}
+<div class="container">
+<h1 class="pt-3 "> NLP Datapoints</h1>
+<h3 class="pt-1"> This is the room for our more discussions on NLP.</h3>
+<h2><span class="badge bg-primary">Case 1: Numeric Values</span></h2>
+<div class="row">
+    <div class="table-responsive col-md-12">
+        <table id="table_id" class="table align-middle table-hover table-striped table-bordered" style="padding: 0.25 rem !important;">
+            <thead>
+            <tr>
+                <th scope="col" class="text-secondary">#</th>
+                <th class="col-md-2" scope="col" style="text-align: left" class="fw-light"> 
+                    Variable </th>
+                <th scope="col" style="text-align: center" class="fw-light">
+                Citations
+                </th>
+                <th scope="col" style="text-align: center" class="fw-light">have Zotero?</th>
+                <th scope="col" style="text-align: center" class="fw-light">have pages?</th>
+            </tr>
+            </thead>
+            <tbody>
+
+                <tr>
+                    <td class="text-secondary" scope="row">1</td>
+                    <td class="fw-bold">Administrative levels</td>
+                    <td  class="fw-bold">3373 (3373)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">2</td>
+                    <td class="fw-bold">Religious levels</td>
+                    <td  class="fw-bold">1295 (1295)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">3</td>
+                    <td class="fw-bold">Military levels</td>
+                    <td  class="fw-bold">1126 (1126)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">4</td>
+                    <td class="fw-bold">Moralizing enforcement is agentic</td>
+                    <td  class="fw-bold">1010 (1010)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">5</td>
+                    <td class="fw-bold">Duration</td>
+                    <td  class="fw-bold">946 (946)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">6</td>
+                    <td class="fw-bold">Settlement hierarchy</td>
+                    <td  class="fw-bold">914 (914)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">7</td>
+                    <td class="fw-bold">Population of the largest settlement</td>
+                    <td  class="fw-bold">897 (897)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">8</td>
+                    <td class="fw-bold">Polity Population</td>
+                    <td  class="fw-bold">713 (713)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">9</td>
+                    <td class="fw-bold">Polity territory</td>
+                    <td  class="fw-bold">611 (611)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">10</td>
+                    <td class="fw-bold">Formal legal code</td>
+                    <td  class="fw-bold">583 (583)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">11</td>
+                    <td class="fw-bold">Full-time bureaucrats</td>
+                    <td  class="fw-bold">561 (561)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">12</td>
+                    <td class="fw-bold">Degree of centralization</td>
+                    <td  class="fw-bold">544 (544)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">13</td>
+                    <td class="fw-bold">Swords</td>
+                    <td  class="fw-bold">538 (538)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">14</td>
+                    <td class="fw-bold">Ideological reinforcement of equality</td>
+                    <td  class="fw-bold">531 (531)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">15</td>
+                    <td class="fw-bold">Capital</td>
+                    <td  class="fw-bold">528 (528)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">16</td>
+                    <td class="fw-bold">Spears</td>
+                    <td  class="fw-bold">510 (510)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">17</td>
+                    <td class="fw-bold">Self bow</td>
+                    <td  class="fw-bold">508 (508)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">18</td>
+                    <td class="fw-bold">Helmets</td>
+                    <td  class="fw-bold">503 (503)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">19</td>
+                    <td class="fw-bold">Composite bow</td>
+                    <td  class="fw-bold">500 (500)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">20</td>
+                    <td class="fw-bold">Professional soldiers</td>
+                    <td  class="fw-bold">498 (498)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">21</td>
+                    <td class="fw-bold">Professional priesthood</td>
+                    <td  class="fw-bold">484 (484)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">22</td>
+                    <td class="fw-bold">Rulers are legitimated by gods</td>
+                    <td  class="fw-bold">480 (480)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">23</td>
+                    <td class="fw-bold">irrigation systems</td>
+                    <td  class="fw-bold">475 (475)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">24</td>
+                    <td class="fw-bold">Indigenous coins</td>
+                    <td  class="fw-bold">453 (453)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">25</td>
+                    <td class="fw-bold">Ideological thought equates rulers and commoners</td>
+                    <td  class="fw-bold">449 (449)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">26</td>
+                    <td class="fw-bold">Professional military officers</td>
+                    <td  class="fw-bold">448 (448)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">27</td>
+                    <td class="fw-bold">Ideological thought equates elites and commoners</td>
+                    <td  class="fw-bold">443 (443)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">28</td>
+                    <td class="fw-bold">markets</td>
+                    <td  class="fw-bold">427 (427)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">29</td>
+                    <td class="fw-bold">Shields</td>
+                    <td  class="fw-bold">427 (427)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">30</td>
+                    <td class="fw-bold">Written records</td>
+                    <td  class="fw-bold">420 (420)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">31</td>
+                    <td class="fw-bold">Daggers</td>
+                    <td  class="fw-bold">420 (420)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">32</td>
+                    <td class="fw-bold">elite status is hereditary</td>
+                    <td  class="fw-bold">419 (419)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">33</td>
+                    <td class="fw-bold">Iron</td>
+                    <td  class="fw-bold">410 (410)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">34</td>
+                    <td class="fw-bold">Judges</td>
+                    <td  class="fw-bold">409 (409)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">35</td>
+                    <td class="fw-bold">Peak Date</td>
+                    <td  class="fw-bold">407 (407)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">36</td>
+                    <td class="fw-bold">Steel</td>
+                    <td  class="fw-bold">407 (407)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">37</td>
+                    <td class="fw-bold">Limb protection</td>
+                    <td  class="fw-bold">407 (407)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">38</td>
+                    <td class="fw-bold">Leather, cloth</td>
+                    <td  class="fw-bold">404 (404)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">39</td>
+                    <td class="fw-bold">Horses</td>
+                    <td  class="fw-bold">400 (400)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">40</td>
+                    <td class="fw-bold">Breastplates</td>
+                    <td  class="fw-bold">393 (393)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">41</td>
+                    <td class="fw-bold">Roads</td>
+                    <td  class="fw-bold">392 (392)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">42</td>
+                    <td class="fw-bold">Specialized government buildings</td>
+                    <td  class="fw-bold">390 (390)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">43</td>
+                    <td class="fw-bold">Language</td>
+                    <td  class="fw-bold">389 (389)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">44</td>
+                    <td class="fw-bold">Battle axes</td>
+                    <td  class="fw-bold">382 (382)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">45</td>
+                    <td class="fw-bold">Tension siege engines</td>
+                    <td  class="fw-bold">380 (380)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">46</td>
+                    <td class="fw-bold">Script</td>
+                    <td  class="fw-bold">378 (378)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">47</td>
+                    <td class="fw-bold">Courts</td>
+                    <td  class="fw-bold">375 (375)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">48</td>
+                    <td class="fw-bold">Earth ramparts</td>
+                    <td  class="fw-bold">370 (370)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">49</td>
+                    <td class="fw-bold">Chainmail</td>
+                    <td  class="fw-bold">370 (370)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">50</td>
+                    <td class="fw-bold">Javelins</td>
+                    <td  class="fw-bold">365 (365)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">51</td>
+                    <td class="fw-bold">Supra-polity relations</td>
+                    <td  class="fw-bold">364 (364)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">52</td>
+                    <td class="fw-bold">War clubs</td>
+                    <td  class="fw-bold">359 (359)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">53</td>
+                    <td class="fw-bold">Rulers are gods</td>
+                    <td  class="fw-bold">352 (352)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">54</td>
+                    <td class="fw-bold">Plate armor</td>
+                    <td  class="fw-bold">345 (345)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">55</td>
+                    <td class="fw-bold">Religious literature</td>
+                    <td  class="fw-bold">343 (343)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">56</td>
+                    <td class="fw-bold">food storage sites</td>
+                    <td  class="fw-bold">337 (337)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">57</td>
+                    <td class="fw-bold">Fiction</td>
+                    <td  class="fw-bold">336 (336)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">58</td>
+                    <td class="fw-bold">Stone walls (mortared)</td>
+                    <td  class="fw-bold">328 (328)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">59</td>
+                    <td class="fw-bold">Ideology reinforces prosociality</td>
+                    <td  class="fw-bold">328 (328)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">60</td>
+                    <td class="fw-bold">History</td>
+                    <td  class="fw-bold">324 (324)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">61</td>
+                    <td class="fw-bold">Settlements in a defensive position</td>
+                    <td  class="fw-bold">320 (320)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">62</td>
+                    <td class="fw-bold">Scientific literature</td>
+                    <td  class="fw-bold">318 (318)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">63</td>
+                    <td class="fw-bold">Slings</td>
+                    <td  class="fw-bold">316 (316)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">64</td>
+                    <td class="fw-bold">Alternative names</td>
+                    <td  class="fw-bold">312 (312)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">65</td>
+                    <td class="fw-bold">Practical literature</td>
+                    <td  class="fw-bold">306 (306)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">66</td>
+                    <td class="fw-bold">Merit promotion</td>
+                    <td  class="fw-bold">305 (305)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">67</td>
+                    <td class="fw-bold">Scaled armor</td>
+                    <td  class="fw-bold">305 (305)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">68</td>
+                    <td class="fw-bold">Calendar</td>
+                    <td  class="fw-bold">301 (301)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">69</td>
+                    <td class="fw-bold">drinking water supply systems</td>
+                    <td  class="fw-bold">299 (299)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">70</td>
+                    <td class="fw-bold">Bronze</td>
+                    <td  class="fw-bold">296 (296)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">71</td>
+                    <td class="fw-bold">Articles</td>
+                    <td  class="fw-bold">288 (288)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">72</td>
+                    <td class="fw-bold">Donkeys</td>
+                    <td  class="fw-bold">285 (285)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">73</td>
+                    <td class="fw-bold">Crossbow</td>
+                    <td  class="fw-bold">280 (280)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">74</td>
+                    <td class="fw-bold">Complex fortifications</td>
+                    <td  class="fw-bold">276 (276)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">75</td>
+                    <td class="fw-bold">Specialized military vessels</td>
+                    <td  class="fw-bold">275 (275)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">76</td>
+                    <td class="fw-bold">Lists, tables, and classifications</td>
+                    <td  class="fw-bold">274 (274)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">77</td>
+                    <td class="fw-bold">Philosophy</td>
+                    <td  class="fw-bold">268 (268)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">78</td>
+                    <td class="fw-bold">Professional Lawyers</td>
+                    <td  class="fw-bold">267 (267)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">79</td>
+                    <td class="fw-bold">Ports</td>
+                    <td  class="fw-bold">267 (267)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">80</td>
+                    <td class="fw-bold">Wooden palisades</td>
+                    <td  class="fw-bold">263 (263)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">81</td>
+                    <td class="fw-bold">Constraint on executive by government</td>
+                    <td  class="fw-bold">261 (261)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">82</td>
+                    <td class="fw-bold">Laminar armor</td>
+                    <td  class="fw-bold">259 (259)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">83</td>
+                    <td class="fw-bold">Stone walls (non-mortared)</td>
+                    <td  class="fw-bold">259 (259)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">84</td>
+                    <td class="fw-bold">Handheld firearms</td>
+                    <td  class="fw-bold">253 (253)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">85</td>
+                    <td class="fw-bold">Ditch</td>
+                    <td  class="fw-bold">253 (253)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">86</td>
+                    <td class="fw-bold">Moat</td>
+                    <td  class="fw-bold">248 (248)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">87</td>
+                    <td class="fw-bold">Phonetic alphabetic writing</td>
+                    <td  class="fw-bold">243 (243)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">88</td>
+                    <td class="fw-bold">Foreign coins</td>
+                    <td  class="fw-bold">243 (243)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">89</td>
+                    <td class="fw-bold">Polearms</td>
+                    <td  class="fw-bold">236 (236)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">90</td>
+                    <td class="fw-bold">Copper</td>
+                    <td  class="fw-bold">235 (235)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">91</td>
+                    <td class="fw-bold">Wood, bark, etc</td>
+                    <td  class="fw-bold">218 (218)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">92</td>
+                    <td class="fw-bold">Couriers</td>
+                    <td  class="fw-bold">217 (217)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">93</td>
+                    <td class="fw-bold">relationship to preceding (quasi)polity</td>
+                    <td  class="fw-bold">214 (214)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">94</td>
+                    <td class="fw-bold">Constraint on executive by non-government</td>
+                    <td  class="fw-bold">213 (213)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">95</td>
+                    <td class="fw-bold">Small vessels (canoes, etc)</td>
+                    <td  class="fw-bold">212 (212)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">96</td>
+                    <td class="fw-bold">Bridges</td>
+                    <td  class="fw-bold">206 (206)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">97</td>
+                    <td class="fw-bold">Supracultural entity</td>
+                    <td  class="fw-bold">206 (206)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">98</td>
+                    <td class="fw-bold">Sacred Texts</td>
+                    <td  class="fw-bold">204 (204)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">99</td>
+                    <td class="fw-bold">Mines or quarries</td>
+                    <td  class="fw-bold">202 (202)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">100</td>
+                    <td class="fw-bold">Examination system</td>
+                    <td  class="fw-bold">195 (195)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">101</td>
+                    <td class="fw-bold">Camels</td>
+                    <td  class="fw-bold">193 (193)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">102</td>
+                    <td class="fw-bold">production of public goods</td>
+                    <td  class="fw-bold">190 (190)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">103</td>
+                    <td class="fw-bold">Precious metals</td>
+                    <td  class="fw-bold">189 (189)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">104</td>
+                    <td class="fw-bold">Fortified camps</td>
+                    <td  class="fw-bold">186 (186)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">105</td>
+                    <td class="fw-bold">Canals</td>
+                    <td  class="fw-bold">177 (177)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">106</td>
+                    <td class="fw-bold">Nonwritten records</td>
+                    <td  class="fw-bold">170 (170)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">107</td>
+                    <td class="fw-bold">Dogs</td>
+                    <td  class="fw-bold">169 (169)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">108</td>
+                    <td class="fw-bold">Elephants</td>
+                    <td  class="fw-bold">167 (167)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">109</td>
+                    <td class="fw-bold">Gunpowder siege artillery</td>
+                    <td  class="fw-bold">165 (165)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">110</td>
+                    <td class="fw-bold">Sling siege engines</td>
+                    <td  class="fw-bold">162 (162)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">111</td>
+                    <td class="fw-bold">Postal stations</td>
+                    <td  class="fw-bold">155 (155)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">112</td>
+                    <td class="fw-bold">Impeachment</td>
+                    <td  class="fw-bold">147 (147)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">113</td>
+                    <td class="fw-bold">Tokens</td>
+                    <td  class="fw-bold">141 (141)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">114</td>
+                    <td class="fw-bold">Paper currency</td>
+                    <td  class="fw-bold">141 (141)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">115</td>
+                    <td class="fw-bold">Long walls</td>
+                    <td  class="fw-bold">136 (136)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">116</td>
+                    <td class="fw-bold">scale of supra-cultural interaction</td>
+                    <td  class="fw-bold">134 (134)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">117</td>
+                    <td class="fw-bold">preceding (quasi)polity</td>
+                    <td  class="fw-bold">129 (129)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">118</td>
+                    <td class="fw-bold">Non-phonetic writing</td>
+                    <td  class="fw-bold">125 (125)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">119</td>
+                    <td class="fw-bold">Mnemonic devices</td>
+                    <td  class="fw-bold">114 (114)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">120</td>
+                    <td class="fw-bold">Original name</td>
+                    <td  class="fw-bold">113 (113)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">121</td>
+                    <td class="fw-bold">General postal service</td>
+                    <td  class="fw-bold">110 (110)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">122</td>
+                    <td class="fw-bold">succeeding (quasi)polity</td>
+                    <td  class="fw-bold">91 (91)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">123</td>
+                    <td class="fw-bold">Merchant ships pressed into service</td>
+                    <td  class="fw-bold">88 (88)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">124</td>
+                    <td class="fw-bold">Atlatl</td>
+                    <td  class="fw-bold">74 (74)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">125</td>
+                    <td class="fw-bold">Modern fortifications</td>
+                    <td  class="fw-bold">53 (53)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">126</td>
+                    <td class="fw-bold">RA</td>
+                    <td  class="fw-bold">13 (13)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-secondary" scope="row">127</td>
+                    <td class="fw-bold">communal dining</td>
+                    <td  class="fw-bold">1 (1)</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+  
+</div>
+
+{% endblock %}

@@ -224,8 +224,13 @@ def map_ref_to_var(html_files_root_dir, ALL_POLITIES=False):
                     last_match = None
                     for match in re.finditer(var_regex, var_part):
                         last_match = match
+
+                    if last_match.group(1).strip() == "Language" and '<span class="mw-headline" id="General_Description">General Description</span>' in var_part:
+                        continue
                     good_key = text_for_split[11:] + polity
                     # som,etimes there is an unnecessary hashhtag: 'Alternate Religion Family#2'
+
+
                     with_potential_hashtag = last_match.group(1).strip()
                     without_pot_hshtag = with_potential_hashtag.split("#")[0]
                     mappings[good_key] = without_pot_hshtag
@@ -262,8 +267,196 @@ def find_var_occurrences_with_refs(html_files_root_dir):
     
 
 
+def html_maker_nlp(file_dir):
+    """
+    creates the html files for reports on NLP datapoints
+    and fills it up
+    """
+    #my_mappings = map_ref_to_var(file_dir, ALL_POLITIES=True)
+    my_reverse_dic = find_var_occurrences_with_refs(file_dir)
 
 
+    with open("a_dic_with_info_on_children_for_seshat_info_Jul_22.json", "r") as my_file:
+        full_info_dic = json.load(my_file)
+
+    # surprisingly, this is the one that has all the keys
+    with open("all_citations_with_duplicates_indicated_for_seshat_info_Jul_22.json", "r") as my_file:
+        dupl_info_dic = json.load(my_file)
+
+    if file_dir == "seshat_browser_Jan_30_2023":
+        active_tag_1 = ""
+        active_tag_2 = "active"
+    elif file_dir == "seshat_info_Jul_22":
+        active_tag_1 = "active"
+        active_tag_2 = ""
+    all_my_rows = [f"""
+{{% extends "core/seshat-base.html" %}}
+{{% load static %}}
+{{% load humanize %}}
+
+{{% block content %}}
+<div class="container">
+<h1 class="pt-3 "> NLP Datapoints</h1>
+<h3 class="pt-1"> This is the room for our more discussions on NLP.</h3>
+
+<ul class="nav nav-pills nav-fill py-3">
+    <li class="nav-item">
+     </li>
+     <li class="nav-item text-success">
+        <a class="nav-link {active_tag_1}" href="{{% url 'nlp_datapoints'%}}"><h5>Wiki</h5>  (seshat.info)</a>
+      </li>
+      <li class="nav-item">
+            <a class="nav-link {active_tag_2}"  href="{{% url 'nlp_datapoints_2'%}}"> <h5>Browser</h5>     (seshatdatabank.info)</a>
+      </li>
+    <li class="nav-item">
+    </li>
+  </ul>
+<div class="row">
+    <div class="table-responsive col-md-12">
+        <table id="table_id" class="table align-middle table-hover table-striped table-bordered" style="padding: 0.25 rem !important;">
+            <thead>
+            <tr>
+                <th scope="col" class="text-secondary" style="text-align: center">#</th>
+                <th class="col-md-2 fw-light" scope="col" style="text-align: left"> 
+                    Variable </th>
+                <th scope="col" style="text-align: center" class="fw-light">
+                        Citations
+                    </th>
+                <th scope="col" style="text-align: center" class="fw-light">
+                DataPoints
+                </th>
+                <th scope="col" style="text-align: center" class="fw-light">has Zotero? (visible)</th>
+                <th scope="col" style="text-align: center" class="fw-light">has pages?</th>
+                <th scope="col" style="text-align: center" class="fw-light">1-page</th>
+                <th scope="col" style="text-align: center" class="fw-light">(2-5) pages</th>
+                <th scope="col" style="text-align: center" class="fw-light">6+ pages</th>
+                <th scope="col" style="text-align: center" class="fw-light">has PDF</th>
+                <th scope="col" style="text-align: center" class="fw-light">PDF <i class="fa-solid fa-arrow-right-long"></i> TXT</th>
+            </tr>
+            </thead>
+            <tbody style="text-align: center">
+    """,]
+    count = 1
+    bad_sectors=0
+    for kk, vv in my_reverse_dic.items():
+        # analyze the data using the other json files
+        # check if it is a duplicate
+        has_pages_count = 0
+        has_pages_1_count = 0
+        has_pages_count_2_5 = 0
+        has_pages_count_5 = 0
+
+        has_vis_zotero_count = 0
+        for a_v in vv:
+            # if file_dir=="seshat_info_Jul_22" and a_v == "REF_36_IrAwanE" or a_v == "REF_37_IrAwanE" or a_v == "REF_16_FrCaptL" or a_v == "REF_79_TrBrzMD" or a_v == "REF_80_TrBrzMD" or a_v == "REF_16_UzSogdi" or a_v == "REF_554_TrOttm2" or a_v == "REF_555_TrOttm2" or a_v == "REF_24_IrSasn1":
+            #     continue
+            the_v = dupl_info_dic.get(a_v)
+            if the_v is None:
+                # Important to check why we have those badies
+                bad_sectors+=1
+                continue
+            if "IS_DUPLICATE_" in the_v:
+                # extract the mother of this
+                mother_ref = the_v[13:]
+                has_pages = full_info_dic[mother_ref][0].get("hasVisiblePages")
+                has_vis_zotero = full_info_dic[mother_ref][0].get("hasVisibleZotero")
+                if has_vis_zotero:
+                    print("****")
+                    print(full_info_dic[mother_ref][0])
+                    has_vis_zotero_count+=1
+
+                if has_pages == True:
+                    has_pages_count+=1
+                    # fix the pages:
+                    original_page_from = full_info_dic[mother_ref][0].get("page_from")
+                    original_page_to = full_info_dic[mother_ref][0].get("page_to")
+                    if original_page_from:
+                        if len(original_page_from) - len(original_page_to) == 1:
+                            original_page_to = original_page_from[0] + original_page_to
+                        elif len(original_page_from) - len(original_page_to) == 2:
+                            original_page_to = original_page_from[0:2] + original_page_to
+                        elif len(original_page_from) - len(original_page_to) == 3:
+                            original_page_to = original_page_from[0:3] + original_page_to
+                        page_dif = int(original_page_to) - int(original_page_from)
+                        if page_dif == 0:
+                            has_pages_1_count+=1
+                        elif page_dif >=1 and page_dif <= 4:
+                            has_pages_count_2_5+=1
+                        elif page_dif >= 5:
+                            has_pages_count_5+=1
+                        elif page_dif <0:
+                            print("__PROBLEMATIC__")
+                            print(full_info_dic[mother_ref][0])
+            else:
+                has_pages = full_info_dic[a_v][0].get("hasVisiblePages")
+                has_vis_zotero = full_info_dic[a_v][0].get("hasVisibleZotero")
+                if has_vis_zotero:
+                    has_vis_zotero_count+=1
+                if has_pages == True:
+                    has_pages_count+=1
+                    # fix the pages:
+                    original_page_from = full_info_dic[mother_ref][0].get("page_from")
+                    original_page_to = full_info_dic[mother_ref][0].get("page_to")
+                    if original_page_from:
+                        if len(original_page_from) - len(original_page_to) == 1:
+                            original_page_to = original_page_from[0] + original_page_to
+                        elif len(original_page_from) - len(original_page_to) == 2:
+                            original_page_to = original_page_from[0:2] + original_page_to
+                        elif len(original_page_from) - len(original_page_to) == 3:
+                            original_page_to = original_page_from[0:3] + original_page_to
+                        page_dif = int(original_page_to) - int(original_page_from)
+                        if page_dif == 0:
+                            has_pages_1_count+=1
+                        elif page_dif >=1 and page_dif <= 4:
+                            has_pages_count_2_5+=1
+                        elif page_dif >= 5:
+                            has_pages_count_5+=1
+                        elif page_dif <0:
+                            print("__PROBLEMATIC__")
+                            print(full_info_dic[mother_ref][0])
+
+        my_template = f"""
+                    <tr>
+                        <td class="text-secondary" scope="row">{count}</td>
+                        <td class="fw-bold"><h5 class="mt-1 text-teal" style="text-align: left">{kk}</h5></td>
+                        <td class="fw-bold">{len(vv)}</td>
+                        <td></td>
+                        <td>X ({has_vis_zotero_count})</td>
+                        <td>{has_pages_count}</td>
+                        <td>{has_pages_1_count}</td>
+                        <td>{has_pages_count_2_5}</td>
+                        <td>{has_pages_count_5}</td>
+                        <td></td>
+                        <td></td>
+                    </tr>"""
+        count+=1
+        all_my_rows.append(my_template)
+        
+    all_my_rows.append("""
+                </tbody>
+            </table>
+        </div>
+    
+    </div>
+
+    {% endblock %}
+    """)
+    full_string = "".join(all_my_rows)
+    with open(f"to_be_transported_to_django_{file_dir}.html", "w", encoding='utf-8') as fw:
+        fw.write(full_string)
+    print(f"Bad Sectors: {bad_sectors}")
+
+
+def html_nlp_table_filler():
+    """
+    Let's fill up the tables
+    """
+    with open("a_dic_with_info_on_children_for_seshat_info_Jul_22.json", "r") as my_file:
+        full_info_dic = json.load(my_file)
+
+    # surprisingly, this is the one that has all the keys
+    with open("all_citations_with_duplicates_indicated_for_seshat_info_Jul_22.json", "r") as my_file:
+        dupl_info_dic = json.load(my_file)
 
 
 

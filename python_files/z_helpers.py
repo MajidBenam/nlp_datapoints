@@ -1823,8 +1823,6 @@ def ultimate_ref_dic_maker(old_dic_of_refs_json_file):
         json.dump(all_refs_to_be_returned, outfile)
     return all_refs_to_be_returned, all_metadata_to_be_returned
 
-
-
 def ref_span_replacer_for_ref_dic_2(my_str, polity_name, all_refs_sofar, all_unique_refs_sofar, html_folder):
     # Maybe cite-ref and class=reference should be replaced.
     if html_folder == "seshat_browser_Jan_30_2023":
