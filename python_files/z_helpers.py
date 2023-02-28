@@ -2485,6 +2485,9 @@ def find_second_and_third_guess(file_dir, max_text_length):
         details = json.load(f2)
 
 
+    output_dic = {}
+
+
     shorties = 0
     good_shorties = 0
     good_shorties_all = 0
@@ -2571,6 +2574,12 @@ def find_second_and_third_guess(file_dir, max_text_length):
                 else:
                     #print(f"More than two hits!!!!!!!!!!!!! {key}: {x} !!!!!!!!!! ----> \n{potential_hits}")
                     more_hits+=1
+                    details[key][index]["second_chance"] = potential_hits[:3]
+                
+                if len(potential_hits) > 0:
+                    output_dic[key] = {
+                        "originalText": x,
+                        "second_chance": potential_hits[:3]}
                 
                     #print("_____________")
                         
@@ -2617,11 +2626,16 @@ def find_second_and_third_guess(file_dir, max_text_length):
                     # if no_hits <100:
                     #     print(f"No HITs in {key}: {x}  ----> \n{potential_hits}")
                     no_hits_third+=1
-                    details[key][index]["third_chance"] = potential_third_hits
+                    #details[key][index]["third_chance"] = potential_third_hits
                 else:
                     #print(f"More than two hits!!!!!!!!!!!!! {key}: {x} !!!!!!!!!! ----> \n{potential_hits}")
                     more_hits_third+=1
-                    details[key][index]["third_chance"] = potential_third_hits
+                    details[key][index]["third_chance"] = potential_third_hits[:3]
+                
+                if len(potential_third_hits) > 0:
+                    output_dic[key] = {
+                        "originalText": x,
+                        "third_chance": potential_third_hits[:3]}
                 
 
                             # third_chances+=1
@@ -2641,7 +2655,7 @@ def find_second_and_third_guess(file_dir, max_text_length):
     print(more_hits_third, " out of ", shorties, " had more than two unique Hits. (on third chance)")
     #print(third_chances, " out of ", shorties, " had a third Hit (a hit on another polity page).")
 
-    with open(f"augmented_citations_of_max_length_{max_text_length}_with_second_and_third_chances_for_{file_dir}.json", "w") as outfile:
-        json.dump(details, outfile)
+    with open(f"citations_of_max_length_{max_text_length}_with_second_and_third_chances_for_{file_dir}.json", "w") as outfile:
+        json.dump(output_dic, outfile)
 
     return details
