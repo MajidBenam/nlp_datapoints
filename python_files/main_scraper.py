@@ -24,8 +24,11 @@ def read_unique_variables():
                 unique_general_variables.append(row[1]['Variable'])
     return unique_general_variables
 
-def ref_span_replacer(my_str, polity_name):
-    RefRegex = re.compile('<sup class="reference" id="cite_ref-(\d{1,4})"><a href="#cite_note-(\d{1,4})">\[(\d{1,4})\]</a></sup>')
+def ref_span_replacer(my_str, polity_name, html_files_root_dir):
+    if html_files_root_dir == "seshat_browser_Jan_30_2023":
+        RefRegex = re.compile('<sup class="reference" id="cite_ref-(\d{1,4})"><a href="#cite_note-(\d{1,4})">\[(\d{1,4})\]</a></sup>')
+    elif html_files_root_dir == 'seshat_info_Jul_22':
+        RefRegex = re.compile('<sup id="cite_ref-(\d{1,4})" class="reference"><a href="#cite_note-(\d{1,4})">\[(\d{1,4})\]</a></sup>')
     catches_all = RefRegex.finditer(my_str)
     #print(catches_all)
     if catches_all:
@@ -126,7 +129,7 @@ def nlp_vars_html_extractor(html_files_root_dir, ALL_POLITIES=False):
                 print(f"{polity}: Number of ps: {better_html.count('<p')} and number of /ps: {better_html.count('</p')}.")
 
             # save a shorter version of each html file
-            final_html_after_ref_replacement = ref_span_replacer(better_html, polity)
+            final_html_after_ref_replacement = ref_span_replacer(better_html, polity, html_files_root_dir)
             final_html_after_image_removal = image_remover(final_html_after_ref_replacement)
             final_html_after_edit_removal = edit_tag_remover(final_html_after_image_removal)
             final_html_after_inner_par = inner_div_decider(final_html_after_edit_removal)
@@ -170,7 +173,8 @@ def nlp_vars_html_extractor(html_files_root_dir, ALL_POLITIES=False):
 
 def return_all_sc_vars():
     """
-    Returns all sc variables as seen even once on html pages of the seshatdatabank.info"""
+    Returns all sc variables as seen even once on html pages of the seshatdatabank.info
+    """
     my_politys = []
     all_sc_vars = []
     with open("polity_ngas.csv", 'r') as pol_csv:
@@ -187,6 +191,78 @@ def return_all_sc_vars():
                     all_sc_vars.append(catch[0])
                 #print(f"{catch[0]} : {catch[1]}")
     return all_sc_vars
+
+
+def map_ref_to_var(html_files_root_dir, ALL_POLITIES=False):
+    """
+    Goes through the augmented html files and maps each ref to a corresponding variable inside the card game symbols and all.
+    """
+    if not ALL_POLITIES:
+        my_politys = ["AfKidar", "CnNWei*", "AfGrBct"]
+    else:
+        my_politys = []
+        with open("csv_files/polity_ngas.csv", 'r') as pol_csv:
+            csv_reader = csv.reader(pol_csv, delimiter=',')
+            for row in csv_reader:
+                my_politys.append(row[1])
+    mappings = {}
+    for polity in my_politys:
+        with open(f"html_files/{html_files_root_dir}_augmented/full_nlp_{polity}.html", "r", encoding='utf-8') as f:
+            source= f.read()
+            #var_regex = re.compile("♠(.*)♣")
+            ref_regex = re.compile("MAJIDBENAM_REF_(\d{1,4})_")
+            catches_all = ref_regex.finditer(source)
+            #print(catches_all)
+            if catches_all:
+                for index, catches in enumerate(catches_all):
+                    # text to be used for splitting
+                    text_for_split = f"MAJIDBENAM_REF_{catches.group(1)}_"
+                    var_part = source.split(text_for_split)[0]
+                    var_regex = re.compile("♠(.*?)♣")
+                    # ♣ missing in ♠ Largest fielded army {670,000; 1,133,800} ♥"Th ... in CnSui**
+                    #  ♣ missing : 'Total army  125,000: 1667 CE; 200,000: 1677 C in FrBurbL
+                    last_match = None
+                    for match in re.finditer(var_regex, var_part):
+                        last_match = match
+                    good_key = text_for_split[11:] + polity
+                    # som,etimes there is an unnecessary hashhtag: 'Alternate Religion Family#2'
+                    with_potential_hashtag = last_match.group(1).strip()
+                    without_pot_hshtag = with_potential_hashtag.split("#")[0]
+                    mappings[good_key] = without_pot_hshtag
+                    #print(f"{catches}")
+
+    with open(f"ref_var_mappings_for_{html_files_root_dir}.json", "w") as outfile:
+        json.dump(mappings, outfile)
+
+    return mappings
+
+
+def find_var_occurrences_with_refs(html_files_root_dir):
+    """
+    for each variable, go through all polities and find out how many references have been used for this var
+    """
+    with open(f"ref_var_mappings_for_{html_files_root_dir}.json", "r") as f:
+        mappings = json.load(f)
+
+    reverse_dic = {}
+    for ref, var in mappings.items():
+        if var in reverse_dic.keys():
+            reverse_dic[var].append(ref)
+        else:
+            reverse_dic[var] = [ref,]
+
+    # sort the dic 
+    sorted_dict = dict(sorted(reverse_dic.items(), key=lambda item: len(item[1]), reverse=True))
+
+    
+    with open(f"var_ref_mappings_for_{html_files_root_dir}.json", "w") as outfile:
+        json.dump(sorted_dict, outfile)
+
+    return sorted_dict
+    
+
+
+
 
 
 
