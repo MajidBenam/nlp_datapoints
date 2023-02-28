@@ -2449,14 +2449,14 @@ def go_find_zoteros_round_3(ultimate_dic_without_duplicates):
 
 
 
-def first_three_words_finder(a_str):
+def first_n_words_finder(a_str, n):
     """
-    Finds the first three words in a string (or the first two, or the first one)
+    Finds the first n words in a string (or the first two, or the first one, or the first n-1)
     """
-    regex = r"\b([a-zA-Z\u00C0-\u017F']+)\b(?:\W+\b([a-zA-Z']+)\b)?(?:\W+\b([a-zA-Z']+)\b)?"
+    regex = r"\b([a-zA-Z\u00C0-\u017F']+)\b(?:\W+\b([a-zA-Z\u00C0-\u017F']+)\b)?(?:\W+\b([a-zA-Z\u00C0-\u017F']+)\b)?(?:\W+\b([a-zA-Z\u00C0-\u017F']+)\b)?"
     match = re.search(regex, a_str)
     if match:
-        words = [match.group(i) for i in range(1, 4) if match.group(i)]
+        words = [match.group(i) for i in range(1, n+1) if match.group(i)]
         return words
     else:
         return []
@@ -2473,3 +2473,170 @@ def find_the_year_plus(a_str):
     else:
         return []
     
+def find_second_and_third_guess(file_dir):
+    """
+    Takes the folder name and returns the augmented version with second and third guesses
+    """
+    with open(f"json_files/extra_ps_at_the_end_for_{file_dir}.json") as f1:
+        extras = json.load(f1)
+    with open(f"a_dic_with_info_on_children_for_{file_dir}.json") as f2:
+        details = json.load(f2)
+
+
+    shorties = 0
+    good_shorties = 0
+    good_shorties_all = 0
+    two_hits = 0
+    no_hits=0
+    third_chances = 0
+    more_hits = 0
+    good_shorties_third = 0
+    two_hits_third = 0
+    no_hits_third=0
+    more_hits_third = 0
+
+
+    all_the_ps_in_all_polities = [] 
+    for kk, vv in extras.items():
+        for a_thing in vv:
+            all_the_ps_in_all_polities.append(a_thing)
+    for key, value in details.items():
+        polity_name = key.split("_")[-1]
+        #if polity_name == "CnNWei*":
+        #    print(key)
+        for index, item in enumerate(value):
+            if item["originalText"] == "SAME_AS_TRIMMED":
+                x = item["trimmedText"]
+            else:   
+                x = item["originalText"]
+            #if polity_name == "CnNWei*":
+            #    print(x)
+            #    print("***********")
+            if len(x) < 50 and item["hasPersonalComment"] ==False:
+                shorties+=1
+                # find the year
+                the_year_plus_in_shortie =  find_the_year_plus(x)
+                the_top_ws_in_shortie =  first_n_words_finder(x, 4)
+                the_ps_below = extras[polity_name]
+                
+                potential_hits = []
+                for a_p in the_ps_below:
+                    number_of_hits = 0
+                    if "and" in the_top_ws_in_shortie:
+                        the_top_ws_in_shortie.remove("and")
+                    if "in" in the_top_ws_in_shortie:
+                        the_top_ws_in_shortie.remove("in")
+                    if "amp" in the_top_ws_in_shortie:
+                        the_top_ws_in_shortie.remove("amp")
+                    num_of_words = len(the_top_ws_in_shortie)
+                    for a_w in the_top_ws_in_shortie:
+                        if the_year_plus_in_shortie and the_year_plus_in_shortie[0] in a_p and len(a_w) >= 3 and a_w.lower() in a_p.lower():
+                            #print(f"HIT: {x}  ----->  in {key} \n {a_p}***")
+                            #print("_____________")
+                            number_of_hits+=1
+                            #potential_hits.append(a_p)
+                            #details[key][index]["second_chance"] = a_p
+                    if number_of_hits == num_of_words:
+                        # high probability hit:
+                        potential_hits.append(a_p)
+                        #details[key][index]["second_chance_high"] = a_p
+                    elif number_of_hits == 3 and num_of_words ==4 and a_p not in potential_hits:
+                    #     # 75% highly probale
+                        potential_hits.append(a_p)
+                        #print(f"75 percent HITs in {key}: {x}  ----> {the_top_ws_in_shortie} \n{potential_hits}")
+                    #     #details[key][index]["second_chance_medium"] = a_p
+                    elif number_of_hits == 2 and num_of_words ==3 and a_p not in potential_hits:
+                    #     # 66% highly probale
+                        potential_hits.append(a_p)
+                        #print(f"66 percent HITs in {key}: {x}  ----> {the_top_ws_in_shortie} \n{potential_hits}")
+                    #     #details[key][index]["second_chance_medium"] = a_p
+                potential_hits=list(set(potential_hits))
+                if len(potential_hits) == 1:
+                    # Very likely hit:
+                    #if good_shorties <100:
+                    #    print(f"1 HIT in {key}: {x}  ----> \n{potential_hits}")
+                    good_shorties+=1
+                    details[key][index]["second_chance"] = potential_hits
+                elif len(potential_hits) == 2:
+                    #if two_hits <100:
+                    #    print(f"2 HITs in {key}: {x}  ----> \n{potential_hits}")
+                    two_hits+=1
+                    details[key][index]["second_chance"] = potential_hits
+                elif len(potential_hits) == 0:
+                    #if no_hits <100:
+                    #    print(f"No HITs in {key}: {x}  ----> \n{potential_hits}")
+                    no_hits+=1
+                else:
+                    #print(f"More than two hits!!!!!!!!!!!!! {key}: {x} !!!!!!!!!! ----> \n{potential_hits}")
+                    more_hits+=1
+                
+                    #print("_____________")
+                        
+                
+                # We need to fo a similar approach for third hits (from all polities) 
+                potential_third_hits = []       
+                for a_p in all_the_ps_in_all_polities:
+                    number_of_third_hits = 0
+                    if "and" in the_top_ws_in_shortie:
+                        the_top_ws_in_shortie.remove("and")
+                    if "in" in the_top_ws_in_shortie:
+                        the_top_ws_in_shortie.remove("in")
+                    if "amp" in the_top_ws_in_shortie:
+                        the_top_ws_in_shortie.remove("amp")
+                    num_of_words = len(the_top_ws_in_shortie)
+                    for a_w in the_top_ws_in_shortie:
+                        if the_year_plus_in_shortie and "second_chance" not in details[key][index].keys() and "has_third_chance" not in details[key][index].keys()  and the_year_plus_in_shortie[0] in a_p and len(a_w) >= 4 and a_w.lower() in a_p.lower():
+                            number_of_third_hits+=1
+                            details[key][index]["has_third_chance"] = True
+                            #potential_hits.append(a_p)
+                            #details[key][index]["second_chance"] = a_p
+                    if number_of_third_hits == num_of_words:
+                        # high probability hit:
+                        potential_third_hits.append(a_p)
+                        #details[key][index]["second_chance_high"] = a_p
+                    elif number_of_third_hits == 2 and num_of_words ==3 and a_p not in potential_third_hits:
+                        # 66% highly probale
+                        potential_third_hits.append(a_p)
+                            #print(f"HIT  +++++ : {x}  ----->  in {key} \n {a_p}***")
+                            #print("_____________")
+                potential_third_hits=list(set(potential_third_hits))
+                if len(potential_third_hits) == 1:
+                    # Very likely hit:
+                    # if good_shorties <100:
+                    #     print(f"1 HIT in {key}: {x}  ----> \n{potential_third_hits}")
+                    good_shorties_third+=1
+                    details[key][index]["third_chance"] = potential_third_hits
+                elif len(potential_third_hits) == 2:
+                    # if two_hits <100:
+                    #     print(f"2 HITs in {key}: {x}  ----> \n{potential_third_hits}")
+                    two_hits_third+=1
+                    details[key][index]["third_chance"] = potential_third_hits
+                elif len(potential_third_hits) == 0:
+                    # if no_hits <100:
+                    #     print(f"No HITs in {key}: {x}  ----> \n{potential_hits}")
+                    no_hits_third+=1
+                    details[key][index]["third_chance"] = potential_third_hits
+                else:
+                    #print(f"More than two hits!!!!!!!!!!!!! {key}: {x} !!!!!!!!!! ----> \n{potential_hits}")
+                    more_hits_third+=1
+                    details[key][index]["third_chance"] = potential_third_hits
+                
+
+                            # third_chances+=1
+                            # if third_chances <100:
+                            #     print(f"********* Third chance HITs in {key}: {x}  ----> \n{a_p}")
+                            #     print("_____")
+                            # details[key][index]["third_chance"] = a_p
+                            # break            #print(x)
+
+    print(good_shorties, " out of ", shorties, " had a unique Hit on their polity page.")
+    print(two_hits, " out of ", shorties, " had two unique Hits.")
+    print(more_hits, " out of ", shorties, " had more than two unique Hits.")
+    #print(third_chances, " out of ", shorties, " had a third Hit (a hit on another polity page).")
+
+    print(good_shorties_third, " out of ", shorties, " had a unique Hit on another polity page.  (on third chance)")
+    print(two_hits_third, " out of ", shorties, " had two unique Hits.  (on third chance)")
+    print(more_hits_third, " out of ", shorties, " had more than two unique Hits. (on third chance)")
+    #print(third_chances, " out of ", shorties, " had a third Hit (a hit on another polity page).")
+
+    return details
