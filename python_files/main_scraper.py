@@ -227,6 +227,8 @@ def map_ref_to_var(html_files_root_dir, ALL_POLITIES=False):
 
                     if last_match.group(1).strip() == "Language" and '<span class="mw-headline" id="General_Description">General Description</span>' in var_part:
                         continue
+                    if last_match.group(1).strip() == "Expert" and 'Description of the Normative Ideology' in var_part:
+                        continue
                     good_key = text_for_split[11:] + polity
                     # som,etimes there is an unnecessary hashhtag: 'Alternate Religion Family#2'
 
@@ -264,8 +266,122 @@ def find_var_occurrences_with_refs(html_files_root_dir):
         json.dump(sorted_dict, outfile)
 
     return sorted_dict
-    
 
+def seshat_ref_to_zotero_id_fixer(ref_dics_list, augnmented_zotro_dic):
+    """
+    updates (populates) ref_zot_id_dic with matches
+    """
+    for ref_dic in ref_dics_list:
+        if not ref_dic['hasVisibleZotero']:
+            cross_check_string_ref = ref_dic["trimmedText"].lower()
+            # go through all zotero files:
+            for zot_id, a_ref in augnmented_zotro_dic.items():
+                # we KNOW that everything has a title.
+                a_title =  a_ref.get("title")
+                authors_list = a_ref.get("authors")
+                a_year = a_ref.get("year")
+
+                # Let's go through all the authors
+                if authors_list and a_year:
+                    for an_author in authors_list:
+                        # even if one author is in we are happy 100 %
+                        # we are also 100% happy if the title is longer than 15
+                        if len(an_author) > 4 and an_author in cross_check_string_ref and len(a_title) > 15 and a_title in cross_check_string_ref and a_year in cross_check_string_ref:
+                            print("100%", end=", ")
+                            return zot_id
+
+def seshat_ref_to_zotero_id_fixer_second_third_chance(reppecharge_dic_item, augnmented_zotro_dic):
+    """
+    updates (populates) ref_zot_id_dic with matches (second and third chance)
+    """
+    if "second_chance" in reppecharge_dic_item.keys():
+        cross_check_string_ref = reppecharge_dic_item["second_chance"][0].lower()
+    elif "third_chance" in reppecharge_dic_item.keys():
+        cross_check_string_ref = reppecharge_dic_item["third_chance"][0].lower()
+    else:
+        return
+    # go through all zotero files:
+    for zot_id, a_ref in augnmented_zotro_dic.items():
+        # we KNOW that everything has a title.
+        a_title =  a_ref.get("title")
+        authors_list = a_ref.get("authors")
+        a_year = a_ref.get("year")
+
+        # Let's go through all the authors
+        if authors_list and a_year:
+            for an_author in authors_list:
+                # even if one author is in we are happy 100 %
+                # we are also 100% happy if the title is longer than 15
+                if len(an_author) > 4 and an_author in cross_check_string_ref and len(a_title) > 15 and a_title in cross_check_string_ref and a_year in cross_check_string_ref:
+                    print("(100%)", end=", ")
+                    return zot_id
+
+def make_99_percent_zotero_guesses(file_dir, zotero_json_file):
+    """
+    We will go through all the longer dics where we have all the info and try to augment the 
+    Zotero situation
+    """
+
+    with open(f"a_dic_with_info_on_children_for_{file_dir}.json", "r") as my_file:
+        full_info_dic = json.load(my_file)
+
+    with open(f"citations_of_max_length_50_with_second_and_third_chances_for_{file_dir}.json", "r") as my_file2:
+        second_and_third_chance_dic = json.load(my_file2)
+
+    # "Seshat_Databank_jan_23.json"
+    with open(zotero_json_file, "r") as my_zotero_file:
+        zotero_dic_list = json.load(my_zotero_file)
+
+    augnmented_zotro_dic = {}
+    for a_ref in zotero_dic_list:
+        # we KNOW that everything has a title.
+        an_id = a_ref.get("id").split("/")[-1]
+        inner_dic_for_value = {}
+        a_title =  a_ref.get("title").lower()
+        # Not everything has an author list
+        authors_list = a_ref.get("author")
+        list_of_authors_family_names = []
+        if authors_list:
+            for author_dic in authors_list:
+                pot_family_name = author_dic.get("family")
+                if pot_family_name:
+                    list_of_authors_family_names.append(pot_family_name.lower())
+        # Not everything has a date
+        date_dic = a_ref.get("issued")
+        a_year = None     # in case nothing is found
+        if date_dic:
+            # take date-parts
+            date_parts_list = date_dic.get("date-parts")
+            if date_parts_list:
+                a_date = date_parts_list[0]
+                if a_date:
+                    a_year = a_date[0]
+        
+        inner_dic_for_value["title"] = a_title
+        inner_dic_for_value["authors"] = list_of_authors_family_names
+        inner_dic_for_value["year"] = a_year
+
+        augnmented_zotro_dic[an_id] = inner_dic_for_value
+    # create a dic full of ref ----> zot_id matches
+    ref_zot_id_dic = {}
+    for ref_key, ref_dics_list in full_info_dic.items():
+        pot_fix = seshat_ref_to_zotero_id_fixer(ref_dics_list, augnmented_zotro_dic)
+        if pot_fix:
+            ref_zot_id_dic[ref_key] = pot_fix
+    # second and third chances:
+    for ref_key, reppecharge_dic_item in second_and_third_chance_dic.items():
+        if ref_key in ref_zot_id_dic.keys():
+            continue
+        pot_fix = seshat_ref_to_zotero_id_fixer_second_third_chance(reppecharge_dic_item, augnmented_zotro_dic)
+        if pot_fix:
+            ref_zot_id_dic[ref_key] = pot_fix
+    
+    with open(f"json_files/99_percent_ref_zot_matches_with_second_and_third_chances_{file_dir}.json", "w") as outfile:
+        json.dump(ref_zot_id_dic, outfile)
+    return ref_zot_id_dic
+
+
+        
 
 def html_maker_nlp(file_dir):
     """
@@ -276,12 +392,19 @@ def html_maker_nlp(file_dir):
     my_reverse_dic = find_var_occurrences_with_refs(file_dir)
 
 
-    with open("a_dic_with_info_on_children_for_seshat_info_Jul_22.json", "r") as my_file:
+    with open(f"a_dic_with_info_on_children_for_{file_dir}.json", "r") as my_file:
         full_info_dic = json.load(my_file)
 
     # surprisingly, this is the one that has all the keys
-    with open("all_citations_with_duplicates_indicated_for_seshat_info_Jul_22.json", "r") as my_file:
+    with open(f"all_citations_with_duplicates_indicated_for_{file_dir}.json", "r") as my_file:
         dupl_info_dic = json.load(my_file)
+
+    with open(f"json_files/99_percent_ref_zot_matches_with_second_and_third_chances_{file_dir}.json") as f1:
+        dic_99_percent = json.load(f1)
+
+    # get all the mappings between ZOTERO ID s and the corresponding local repo (if available)
+    with open("zotero_ids_to_local_repos_mapping.json", "r") as my_file:
+        ids_to_local_dic = json.load(my_file)
 
     if file_dir == "seshat_browser_Jan_30_2023":
         active_tag_1 = ""
@@ -294,12 +417,132 @@ def html_maker_nlp(file_dir):
 {{% load static %}}
 {{% load humanize %}}
 
+
+
 {{% block content %}}
 <div class="container">
-<h1 class="pt-3 "> NLP Datapoints</h1>
-<h3 class="pt-1"> This is the room for our more discussions on NLP.</h3>
+<h1 class="pt-3 text-teal"><i class="fa-solid fa-people-group"></i> NLP Project Discussion Room</h1>
+<h4 class="pt-3 text-success"><i class="fa-solid fa-chevron-right"></i> &nbsp; NLP DataPoints:</h4>
+<h5><i class="fa-solid fa-circle-chevron-right"></i> Here are some examples of DataPoints (as per my understanding).</h5>
+<h6>* There are lots of other options for metadata and how we can clean up and organize each unit of information in our project, but that should be a good starting point to start the discussion and fill up the gaps in future.</h6>
 
-<ul class="nav nav-pills nav-fill py-3">
+<div class="col-md-12">
+    <div class="accordion accordion-flush" id="accordionExample">
+        <div class="accordion-item" style="background-color:#fefae6;">
+          <h2 class="accordion-header" id="headingOne">
+            <button class="accordion-button collapsed px-0" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne" style="background-color:#fefae6;">
+              <span class="text-success fw-bold"><i class="fa-solid fa-chevron-right"></i>  &nbsp; NLP DataPoint Examples: (click to see)
+              </span> 
+            </button>
+          </h2>
+          <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne">
+            <div class="accordion-body table-responsive p-0">
+                <table id="table_id" class="table align-middle table-hover table-striped table-bordered" style="padding: 0.25 rem !important;">
+                    <thead >
+                        <tr class="sticky-md-top">
+                            <th class="fw-bold" scope="col" style="text-align: left"> 
+                                Variable </th>
+                            <th scope="col" style="text-align: center" class="fw-bold">
+                                Value (confidence)
+                            </th>
+                            <th scope="col" style="text-align: center" class="fw-bold">
+                                Polity
+                            </th>
+                            <th scope="col" style="text-align: left" class="fw-bold col-md-3">Description</th>
+                            <th scope="col" style="text-align: left" class="fw-bold">Extra Desc 
+                                <sup>
+                                    <span type="button"  tabindex="0" data-bs-toggle="popover" title="Some extra information added by RA to the main description." data-bs-html="true" data-bs-trigger="focus" data-bs-content='Some extra information added by RA to he main description.'>&nbsp;<i class="fa-regular fa-circle-question"></i></span>
+                                </sup>
+                            </th>
+                            <th scope="col" style="text-align: center" class="fw-bold">Exact Quote?</th>
+                            <th scope="col" style="text-align: center" class="fw-bold">Citation</th>
+                            <th scope="col" style="text-align: center" class="fw-bold">Zotero?</th>
+                            <th scope="col" style="text-align: center" class="fw-bold">pages?</th>
+                            <th scope="col" style="text-align: center" class="fw-bold">PDF?</th>
+                            <th scope="col" style="text-align: center" class="fw-bold">TXT?</th>
+                        </tr>
+                        </thead>
+               
+                <tbody style="text-align: center">
+                        <tr>
+                            <td style="text-align: left"> 
+                                Enslavement </td>
+                            <td style="text-align: center">
+                                present (Inferred)
+                            </td>
+                            <td style="text-align: center">
+                                AfGhurd
+                            </td>
+                            <td style="text-align: left" class="col-md-3">"As many as 60,000 inhabitants of Ghazna were massacred, and according to the Ghurid chronicler, al-Juzjani, the prisoners were forced to carry building materials from Ghazna to Firuzkuh, where the mud was mixed with their blood to build the towers of Ghur."</td>
+                            <td style="text-align: center">"At least temporarily."</td>
+                            <td style="text-align: center"><i class="fa-solid fa-circle-check text-success"></i></td>
+                            <td style="text-align: left"><i>
+                                David Thomas. Firuzkuh. The summer capital of the Ghurids. Amira K Bennison. Alison L Gascoigne. eds. 2007. Cities in the Pre-Modern Islamic World: The Urban Impact of Religion, State and Society. Routledge. London.
+                            </i> </td>
+                            <td style="text-align: center"><i class="fa-solid fa-circle-check text-success"></i></td>
+                            <td style="text-align: center"><i class="fa-solid fa-circle-xmark text-danger"></i></td>
+                            <td style="text-align: center"><i class="fa-solid fa-circle-xmark text-danger"></i></td>
+                            <td style="text-align: center"><i class="fa-solid fa-circle-xmark text-danger"></i></td>
+                        </tr>
+    
+                        <tr>
+                            <td style="text-align: left"> 
+                                Destruction </td>
+                            <td style="text-align: center">
+                                present (Evidenced)
+                            </td>
+                            <td style="text-align: center">
+                                AfGhurd
+                            </td>
+                            <td style="text-align: left" class="col-md-3">"Ala al-Din Husayn attacked Ghazna, capital of the eponymous Ghaznavid dynasty. The city reputedly burned for seven days, earning Ala al-Din the sobriquet 'Jahan-Suz' (World Incendiary)."</td>
+                            <td style="text-align: center"><i class="fa-solid fa-circle-xmark text-danger"></i></td>
+                            <td style="text-align: center"><i class="fa-solid fa-circle-check text-success"></i></td>
+                            <td style="text-align: left"><i>
+                                David Thomas. Firuzkuh. The summer capital of the Ghurids. Amira K Bennison. Alison L Gascoigne. eds. 2007. Cities in the Pre-Modern Islamic World: The Urban Impact of Religion, State and Society. Routledge. London.
+                            </i> </td>
+                            <td style="text-align: center"><i class="fa-solid fa-circle-check text-success"></i></td>
+                            <td style="text-align: center"><i class="fa-solid fa-circle-xmark text-danger"></i></td>
+                            <td style="text-align: center"><i class="fa-solid fa-circle-xmark text-danger"></i></td>
+                            <td style="text-align: center"><i class="fa-solid fa-circle-xmark text-danger"></i></td>
+                        </tr>
+    
+    
+                        <tr>
+                            <td style="text-align: left"> 
+                                Destruction </td>
+                            <td style="text-align: center">
+                                present (Evidenced)
+                            </td>
+                            <td style="text-align: center">
+                                AfGhurd
+                            </td>
+                            <td style="text-align: left" class="col-md-3">"In the 1170s the Ghurid ruler appointed his brother, Muhammad, governor of Ghaznah and encouraged him to raid in India. ... in alliance with a Hindu ruler, he reduced Lahore and replaced the last of the Ghaznavid dynasty."</td>
+                            <td style="text-align: center"><i class="fa-solid fa-circle-xmark text-danger"></i></td>
+                            <td style="text-align: center"><i class="fa-solid fa-circle-check text-success"></i></td>
+                            <td style="text-align: left"><i>
+                                (Hodgson 1977, 276) Marshall G S Hodgson. 1977. The Venture of Islam, Volume 2: The Expansion of Islam in the Middle Periods. Volume 2. University of Chicago Press. Chicago.
+                            </i> </td>
+                            <td style="text-align: center"><i class="fa-solid fa-circle-check text-success"></i></td>
+                            <td style="text-align: center"><i class="fa-solid fa-circle-check text-success"></i></td>
+                            <td style="text-align: center"><i class="fa-solid fa-circle-xmark text-danger"></i></td>
+                            <td style="text-align: center"><i class="fa-solid fa-circle-xmark text-danger"></i></td>
+                        </tr>
+                        
+                </tbody>
+            </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+  </div>
+
+
+<h4 class="pt-3 text-success"> <i class="fa-solid fa-chevron-right"></i> &nbsp; Statistics of all the Variables on Seshat Websites</h4>
+
+<h6 class="pt-3">* Note that Seshat has two old websites. One is <a href="https://seshat.info">Seshat.info</a> (aka Wiki) which serves as the place where all the facts go before being reviewed by Seshat Experts. The public Seshat Website is <a href="https://seshatdabank.info/databrowser">Seshatdatabank.info</a> (aka Browser) is where only the expert-reviewed data shows up. From my experince, most of the data on Wiki is also of great quality and can be used (with minimun extra effort) in our research projects, among which the current NLP project. For example, all the examples in the above table are taken from Wiki.</h6>
+<h6 class="pt-1">* What you see below is the first draft of my analysis of all Seshat variables. As you can see there are so many gaps to be filled in order to take advantage of the full Seshat potential. Some gaps can (and will) be filled by me and Jakob, and for some other gaps, we need some expert and RA help. By filling the gaps, I mean, the process through which we reduce the difference between the current state of the data and the ideal super-clean database where every citation has a Zotero ID and page number and PDF files and correponding text.</h6>
+<ul class="nav nav-pills nav-fill py-4">
     <li class="nav-item">
      </li>
      <li class="nav-item text-success">
@@ -317,21 +560,22 @@ def html_maker_nlp(file_dir):
             <thead>
             <tr>
                 <th scope="col" class="text-secondary" style="text-align: center">#</th>
-                <th class="col-md-2 fw-light" scope="col" style="text-align: left"> 
+                <th class="col-md-3 fw-bold" scope="col" style="text-align: left"> 
                     Variable </th>
-                <th scope="col" style="text-align: center" class="fw-light">
+                <th scope="col" style="text-align: center" class="fw-bold">
                         Citations
                     </th>
-                <th scope="col" style="text-align: center" class="fw-light">
+                <th scope="col" style="text-align: center" class="fw-bold text-success">
                 DataPoints
+                <sup>
+                    <span type="button"  tabindex="0" data-bs-toggle="popover" title="DataPoints are smaller than Citations, because some of our citations are for example Personal Comments, and therefore not really useful for NLP project" data-bs-html="true" data-bs-trigger="focus" data-bs-content='DataPoints are smaller than Citations, because some of our citations are for example Personal Comments, and therefore not really useful for NLP project'>&nbsp;<i class="fa-regular fa-circle-question"></i></span>
+                </sup>
                 </th>
-                <th scope="col" style="text-align: center" class="fw-light">has Zotero? (visible)</th>
-                <th scope="col" style="text-align: center" class="fw-light">has pages?</th>
-                <th scope="col" style="text-align: center" class="fw-light">1-page</th>
-                <th scope="col" style="text-align: center" class="fw-light">(2-5) pages</th>
-                <th scope="col" style="text-align: center" class="fw-light">6+ pages</th>
-                <th scope="col" style="text-align: center" class="fw-light">has PDF</th>
-                <th scope="col" style="text-align: center" class="fw-light">PDF <i class="fa-solid fa-arrow-right-long"></i> TXT</th>
+                <th scope="col" style="text-align: center" class="fw-bold text-success">has Zotero? (visible)</th>
+                <th scope="col" style="text-align: center" class="fw-bold">has pages?</th>
+                <th scope="col" style="text-align: center" class="fw-bold">1-page / (2-5) / 6+ </th>
+                <th scope="col" style="text-align: center" class="fw-bold text-success">has PDF</th>
+                <th scope="col" style="text-align: center" class="fw-bold text-success">PDF <i class="fa-solid fa-arrow-right-long"></i> TXT</th>
             </tr>
             </thead>
             <tbody style="text-align: center">
@@ -339,6 +583,8 @@ def html_maker_nlp(file_dir):
     count = 1
     bad_sectors=0
     for kk, vv in my_reverse_dic.items():
+        if kk in ["RA", "Expert", "Editor",]:
+            continue
         # analyze the data using the other json files
         # check if it is a duplicate
         has_pages_count = 0
@@ -346,7 +592,12 @@ def html_maker_nlp(file_dir):
         has_pages_count_2_5 = 0
         has_pages_count_5 = 0
 
+        has_concluded_zotero = 0
         has_vis_zotero_count = 0
+        has_PDF = 0
+        has_TXT = 0
+
+        has_pers_comm = 0
         for a_v in vv:
             # if file_dir=="seshat_info_Jul_22" and a_v == "REF_36_IrAwanE" or a_v == "REF_37_IrAwanE" or a_v == "REF_16_FrCaptL" or a_v == "REF_79_TrBrzMD" or a_v == "REF_80_TrBrzMD" or a_v == "REF_16_UzSogdi" or a_v == "REF_554_TrOttm2" or a_v == "REF_555_TrOttm2" or a_v == "REF_24_IrSasn1":
             #     continue
@@ -360,10 +611,32 @@ def html_maker_nlp(file_dir):
                 mother_ref = the_v[13:]
                 has_pages = full_info_dic[mother_ref][0].get("hasVisiblePages")
                 has_vis_zotero = full_info_dic[mother_ref][0].get("hasVisibleZotero")
+                pdf_avialable_0 = full_info_dic[mother_ref][0].get("zoteroID")
+                is_pers_comm =  full_info_dic[mother_ref][0].get("hasPersonalComment") 
+
+                if is_pers_comm:
+                    has_pers_comm+=1
+                
+                if pdf_avialable_0:
+                    my_zotero_id = pdf_avialable_0[0]
+                    if my_zotero_id in ids_to_local_dic.keys():
+                        has_PDF+=1
+                        if ids_to_local_dic[my_zotero_id] != "NO_USEABLE_PDF":
+                            has_TXT+=1
+                 
                 if has_vis_zotero:
                     print("****")
                     print(full_info_dic[mother_ref][0])
                     has_vis_zotero_count+=1
+
+                # concluded zotero
+                if mother_ref in dic_99_percent.keys():
+                    zot_99 = dic_99_percent[mother_ref]
+                    has_concluded_zotero+=1
+                    if zot_99 in ids_to_local_dic.keys():
+                        has_PDF+=1
+                        if ids_to_local_dic[zot_99] != "NO_USEABLE_PDF":
+                            has_TXT+=1
 
                 if has_pages == True:
                     has_pages_count+=1
@@ -390,13 +663,36 @@ def html_maker_nlp(file_dir):
             else:
                 has_pages = full_info_dic[a_v][0].get("hasVisiblePages")
                 has_vis_zotero = full_info_dic[a_v][0].get("hasVisibleZotero")
+                pdf_avialable_0 = full_info_dic[a_v][0].get("zoteroID")
+                is_pers_comm =  full_info_dic[a_v][0].get("hasPersonalComment") 
+
+                if is_pers_comm:
+                    has_pers_comm+=1
+
+                if pdf_avialable_0:
+                    my_zotero_id = pdf_avialable_0[0]
+                    if my_zotero_id in ids_to_local_dic.keys():
+                        has_PDF+=1
+                        if ids_to_local_dic[my_zotero_id] != "NO_USEABLE_PDF":
+                            has_TXT+=1
+
                 if has_vis_zotero:
                     has_vis_zotero_count+=1
+
+                # concluded zotero
+                if a_v in dic_99_percent.keys():
+                    zot_99 = dic_99_percent[a_v]
+                    has_concluded_zotero+=1
+                    if zot_99 in ids_to_local_dic.keys():
+                        has_PDF+=1
+                        if ids_to_local_dic[zot_99] != "NO_USEABLE_PDF":
+                            has_TXT+=1
+
                 if has_pages == True:
                     has_pages_count+=1
                     # fix the pages:
-                    original_page_from = full_info_dic[mother_ref][0].get("page_from")
-                    original_page_to = full_info_dic[mother_ref][0].get("page_to")
+                    original_page_from = full_info_dic[a_v][0].get("page_from")
+                    original_page_to = full_info_dic[a_v][0].get("page_to")
                     if original_page_from:
                         if len(original_page_from) - len(original_page_to) == 1:
                             original_page_to = original_page_from[0] + original_page_to
@@ -413,21 +709,19 @@ def html_maker_nlp(file_dir):
                             has_pages_count_5+=1
                         elif page_dif <0:
                             print("__PROBLEMATIC__")
-                            print(full_info_dic[mother_ref][0])
+                            print(full_info_dic[a_v][0])
 
         my_template = f"""
                     <tr>
                         <td class="text-secondary" scope="row">{count}</td>
                         <td class="fw-bold"><h5 class="mt-1 text-teal" style="text-align: left">{kk}</h5></td>
-                        <td class="fw-bold">{len(vv)}</td>
-                        <td></td>
-                        <td>X ({has_vis_zotero_count})</td>
+                        <td>{len(vv)}</td>
+                        <td class="fw-bold text-success">{len(vv) - has_pers_comm}</td>
+                        <td class="fw-bold text-success">{has_vis_zotero_count + has_concluded_zotero} ({has_vis_zotero_count})</td>
                         <td>{has_pages_count}</td>
-                        <td>{has_pages_1_count}</td>
-                        <td>{has_pages_count_2_5}</td>
-                        <td>{has_pages_count_5}</td>
-                        <td></td>
-                        <td></td>
+                        <td>{has_pages_1_count} / {has_pages_count_2_5} / {has_pages_count_5}</td>
+                        <td class="fw-bold text-success">{has_PDF}</td>
+                        <td class="fw-bold text-success">{has_TXT}</td>
                     </tr>"""
         count+=1
         all_my_rows.append(my_template)
