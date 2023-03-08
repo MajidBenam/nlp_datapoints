@@ -198,7 +198,7 @@ def map_ref_to_var(html_files_root_dir, ALL_POLITIES=False):
     Goes through the augmented html files and maps each ref to a corresponding variable inside the card game symbols and all.
     """
     if not ALL_POLITIES:
-        my_politys = ["AfKidar", "CnNWei*", "AfGrBct"]
+        my_politys = ["AfKidar",]
     else:
         my_politys = []
         with open("csv_files/polity_ngas.csv", 'r') as pol_csv:
@@ -243,6 +243,167 @@ def map_ref_to_var(html_files_root_dir, ALL_POLITIES=False):
 
     return mappings
 
+
+
+
+
+def nlp_full_datapoint_extarctor(html_files_root_dir, ALL_POLITIES=False):
+    """
+    Goes through the augmented html files and maps each ref to a corresponding variable inside the card game symbols and all.
+    """
+    with open(f"all_citations_with_duplicates_indicated_for_{html_files_root_dir}.json", "r") as my_file:
+        dupl_info_dic = json.load(my_file)
+    with open(f"a_dic_with_info_on_children_for_{html_files_root_dir}.json", "r") as my_file:
+        full_info_dic = json.load(my_file)
+    
+    #make a simple REF_123_AfdUrrn --- > Coady Bads and goodss of life 23-24:
+    ref_number_ref_text_mapper = {}
+    for k_all, v_all in dupl_info_dic.items():
+        if "IS_DUPLICATE_" in v_all:
+            # extract the mother of this
+            mother_ref = v_all[13:]
+            for index1, a_ref in enumerate(full_info_dic[mother_ref]):
+                if a_ref["originalText"] == "SAME_AS_TRIMMED":
+                    ref_number_ref_text_mapper[k_all + "_" + str(index1+1)] = [ a_ref["trimmedText"], a_ref["trimmedText"]]
+                else:
+                    ref_number_ref_text_mapper[k_all+ "_" + str(index1+1)] = [ a_ref["originalText"], a_ref["trimmedText"]]
+        # if it is not a duplicate, still go and get the data from the other dic
+        else:
+            for index2, a_ref in enumerate(full_info_dic[k_all]):
+                if a_ref["originalText"] == "SAME_AS_TRIMMED":
+                    ref_number_ref_text_mapper[k_all + "_" + str(index2+1)] = [ a_ref["trimmedText"], a_ref["trimmedText"]]
+                else:
+                    ref_number_ref_text_mapper[k_all+ "_" + str(index2+1)] = [ a_ref["originalText"], a_ref["trimmedText"]]
+
+    if not ALL_POLITIES:
+        my_politys = ["AfKidar",]
+    else:
+        my_politys = []
+        with open("csv_files/polity_ngas.csv", 'r') as pol_csv:
+            csv_reader = csv.reader(pol_csv, delimiter=',')
+            for row in csv_reader:
+                my_politys.append(row[1])
+    mappings = {}
+    #candidates = []
+    for polity in my_politys:
+        with open(f"html_files/{html_files_root_dir}_augmented/full_nlp_{polity}.html", "r", encoding='utf-8') as f:
+            source= f.read()
+            #print(source)
+            #var_regex = re.compile("♠(.*)♣")
+            ref_regex = re.compile("\[MAJIDBENAM_REF_(\d{1,4})_")
+            catches_all_0 = ref_regex.finditer(source)
+
+            # make the source better
+            if catches_all_0:
+                for index, catches in enumerate(catches_all_0):
+                    source = source.replace(f"[MAJIDBENAM_REF_{catches.group(1)}_{polity}]", f"[JIDBEN_REF_{catches.group(1)}_{polity}_JIDBEN]")
+            
+            # fix the spaces (etc.) between consecutive refs:
+            for in_between in [' , ', ',', ', ', '"', '. ', '.', ' .', ')', '; ', ' ']:
+                source = source.replace("JIDBEN]" + in_between + "[JIDBEN", "JIDBEN][JIDBEN")
+
+            ref_regex = re.compile("\[JIDBEN_REF_(\d{1,4})_")
+            catches_all = ref_regex.finditer(source)
+            #print(source)
+            if catches_all:
+                for index, catches in enumerate(catches_all):
+                    # text to be used for splitting
+                    text_for_split = f"[JIDBEN_REF_{catches.group(1)}_"
+                    var_part = source.split(text_for_split)[0]
+                    #print(var_part)
+                    var_regex = re.compile("♠(.*?)♣")
+                    # ♣ missing in ♠ Largest fielded army {670,000; 1,133,800} ♥"Th ... in CnSui**
+                    #  ♣ missing : 'Total army  125,000: 1667 CE; 200,000: 1677 C in FrBurbL
+                    last_match = None
+                    for match in re.finditer(var_regex, var_part):
+                        last_match = match
+
+
+
+                    if last_match.group(1).strip() == "Language" and '<span class="mw-headline" id="General_Description">General Description</span>' in var_part:
+                        continue
+                    if last_match.group(1).strip() == "Expert" and 'Description of the Normative Ideology' in var_part:
+                        continue
+
+                    # make the key
+                    good_key = text_for_split[8:] + polity
+                    # sometimes there is an unnecessary hashhtag: 'Alternate Religion Family#2'
+
+                    with_potential_hashtag = last_match.group(1).strip()
+                    without_pot_hshtag = with_potential_hashtag.split("#")[0]
+                    # without_pot_hashtag gives the variable name,
+                    # we want the value and the description as well.
+                    
+                    # we still have the var_part:
+                    desc_part = var_part.split("♥")[-1]
+                    value_part = var_part.split("♥")[-2]
+
+                    my_value = value_part.split("♣")[1]
+                    # check if the ref just smaller than our ref is on the way:
+                    disturbing_ref = f"[JIDBEN_REF_{int(catches.group(1))-1}_{polity}_JIDBEN]"
+                    # if there is no other occurrence of "JIDBEN_REF_xyz_" report:
+                    if disturbing_ref not in desc_part:
+                        desc_part_good = desc_part
+                        #print(text_for_split[11:] + polity, f": {without_pot_hshtag} --> {my_value}) ::::", desc_part_good)
+                        #print("________")
+                        # all good, report the desc
+                    else:
+                        # a better desc_part is the cut-off from the last to this ref:
+                        desc_part_good = desc_part.split(disturbing_ref)[1]
+
+                        #print(text_for_split[11:] + polity, f":{without_pot_hshtag} --> {my_value}) ::::", desc_part_good)
+                        #print("________")
+
+                    # clean up the desc_part_good
+                    desc_part_best = desc_part_good.replace("<i>", "").replace("</i>", "").replace("<b>", "").replace("</b>", "").replace("</div>", "").replace("<div>", "").replace("[MAJIDBENAM_BR]", "[MJD_BR]").strip()
+                    
+                    # two refs after each other
+                    # if without_pot_hshtag != "Moralizing enforcement is agentic" and f"[JIDBEN_REF_{int(catches.group(1))-1}_{polity}][JIDBEN_REF_{int(catches.group(1))}_{polity}]" in desc_part+f"[JIDBEN_REF_{int(catches.group(1))}_{polity}]":
+                    #     print(f"WARNING: TWO Refs after each other: {good_key}" )
+
+                    # refs after each other
+                    if without_pot_hshtag != "Moralizing enforcement is agentic" and f"[JIDBEN_REF_{int(catches.group(1))-1}_{polity}_JIDBEN][JIDBEN_REF_{int(catches.group(1))}_{polity}_JIDBEN]" in desc_part+f"[JIDBEN_REF_{int(catches.group(1))}_{polity}_JIDBEN]":
+                        # then treat this as if the description is from the previous shit.
+                        prev_text_for_split = f"[JIDBEN_REF_{int(catches.group(1)) -1}_"
+                        previous_key = prev_text_for_split[8:] + polity + "_1"
+                        try:
+                            desc_part_best = mappings[previous_key]["description"]
+                        except:
+                            desc_part_best = "BAD_SECTOR_EXAMPLE"
+                            print(f"{previous_key} ---> not found.")
+                        #print(f"WARNING: Three Refs after each other: {good_key}" )
+                    
+                    #if len(desc_part_best) > 5000:
+                    #    print(f"WARNING: Tooooo long of a Description. {good_key}" )
+                    #    print(desc_part_best)
+                    
+                    # if len(desc_part_best) < 3 and without_pot_hshtag != "Moralizing enforcement is agentic":
+                    #     print(f"WARNING: Very Short Description. {good_key}" )
+                    # if "meatypart" in desc_part_best:
+                    #     print(f"WARNING: Meaty Part Div in Description. {good_key}" )
+
+                    #print(good_key, f": {without_pot_hshtag} -->{my_value}::::", desc_part_best)
+                    #print("________")
+
+                    # There are some bad sectors:
+                    for i in [1,2,3]:
+                        new_key = good_key+ "_" + str(i)
+                        if new_key in ref_number_ref_text_mapper.keys():
+                            #print(new_key)
+                            mappings[new_key] = {
+                                "variable": without_pot_hshtag.strip(),
+                                "value": my_value.strip(),
+                                "polity": polity,
+                                "description": desc_part_best,
+                                "citation_text": ref_number_ref_text_mapper[new_key][0], 
+                                "citation_text_trimmed": ref_number_ref_text_mapper[new_key][1],
+                                }
+                    #print(f"{catches}")
+
+    with open(f"nlp_full_mappings_{html_files_root_dir}.json", "w") as outfile:
+        json.dump(mappings, outfile)
+
+    return mappings
 
 def find_var_occurrences_with_refs(html_files_root_dir):
     """
@@ -412,6 +573,7 @@ def html_maker_nlp(file_dir):
     elif file_dir == "seshat_info_Jul_22":
         active_tag_1 = "active"
         active_tag_2 = ""
+    all_my_rows_dic = {}
     all_my_rows = [f"""
 {{% extends "core/seshat-base.html" %}}
 {{% load static %}}
@@ -440,21 +602,45 @@ def html_maker_nlp(file_dir):
                 <table id="table_id" class="table align-middle table-hover table-striped table-bordered" style="padding: 0.25 rem !important;">
                     <thead >
                         <tr class="sticky-md-top">
+                        <span style="white-space: nowrap;">
                             <th class="fw-bold" scope="col" style="text-align: left"> 
-                                Variable </th>
+                                Variable
+                            <sup>
+                    <span type="button"  tabindex="0" data-bs-toggle="popover" title="Variable" data-bs-html="true" data-bs-trigger="focus" data-bs-content='In Seshat, we have collected information on different aspects of past human societies. As the value of the gathered data varies from polity to polity and from time period to time period (even in one polity), we call these Variables.'>&nbsp;<i class="fa-regular fa-circle-question"></i></span>
+                            </sup>
+                            </span>
+
+                             </th>
                             <th scope="col" style="text-align: center" class="fw-bold">
                                 Value (confidence)
+                            <sup>
+                    <span type="button"  tabindex="0" data-bs-toggle="popover" title="Value (confidence)" data-bs-html="true" data-bs-trigger="focus" data-bs-content='Depending on the type of variable, the collected data can be a numerical range or simply information on the absence or presence of that variable. We also keep the information on whether the concluded value is "Evidenced", "Inferred", or "suspected".'>&nbsp;<i class="fa-regular fa-circle-question"></i></span>
+                            </sup>
                             </th>
                             <th scope="col" style="text-align: center" class="fw-bold">
                                 Polity
+                                          <sup>
+                    <span type="button"  tabindex="0" data-bs-toggle="popover" title="Polity" data-bs-html="true" data-bs-trigger="focus" data-bs-content='A polity is defined as an independent political unit. Kinds of polities range from villages (local communities) through simple and complex chiefdoms to states and empires. It's important to note that a polity has a duration and in many cases (if a specific time period is NOT associated with a variable, the full duration of its corresponding polity is assumed in our analyses.)'>&nbsp;<i class="fa-regular fa-circle-question"></i></span>
+                            </sup>
                             </th>
-                            <th scope="col" style="text-align: left" class="fw-bold col-md-3">Description</th>
+                            <th scope="col" style="text-align: left" class="fw-bold col-md-3">Description
+                                                                      <sup>
+                    <span type="button"  tabindex="0" data-bs-toggle="popover" title="Description" data-bs-html="true" data-bs-trigger="focus" data-bs-content='Description is a the text added by the RA who inserted this particular datapoint into Seshat Website. It can be an exact quote from the reference he/she was referring to, or his/her understandig of the concept based on the text in the reference.'>&nbsp;<i class="fa-regular fa-circle-question"></i></span>
+                            </sup>
+                            </th>
                             <th scope="col" style="text-align: left" class="fw-bold">Extra Desc 
                                 <sup>
-                                    <span type="button"  tabindex="0" data-bs-toggle="popover" title="Some extra information added by RA to the main description." data-bs-html="true" data-bs-trigger="focus" data-bs-content='Some extra information added by RA to he main description.'>&nbsp;<i class="fa-regular fa-circle-question"></i></span>
+                                    <span type="button"  tabindex="0" data-bs-toggle="popover" title="Extra Description" data-bs-html="true" data-bs-trigger="focus" data-bs-content='Some extra information added to the main description by the RA. This is also as per the RA's understanding and can add sentiment to the description. Extra description could have been taken from another part of the refernce that was not included in the main description'>&nbsp;<i class="fa-regular fa-circle-question"></i></span>
                                 </sup>
                             </th>
-                            <th scope="col" style="text-align: center" class="fw-bold">Exact Quote?</th>
+                            <th scope="col" style="text-align: center" class="fw-bold">Exact Quote?
+                                <sup>
+                                    <span type="button"  tabindex="0" data-bs-toggle="popover" title="Exact Quote?" data-bs-html="true" data-bs-trigger="focus" data-bs-content='
+                                    <i class="fa-solid fa-circle-check text-success"></i>: The text in the Description is and exact quote from the Citation it is referring to.
+                                    <br>
+                                    <i class="fa-solid fa-circle-xmark text-danger"></i>: The text in the Description is <b>NOT</b> an exact quote from the Citation it is referring to.'>&nbsp;<i class="fa-regular fa-circle-question"></i></span>
+                                </sup>
+                            </th>
                             <th scope="col" style="text-align: center" class="fw-bold">Citation</th>
                             <th scope="col" style="text-align: center" class="fw-bold">Zotero?</th>
                             <th scope="col" style="text-align: center" class="fw-bold">pages?</th>
@@ -568,7 +754,7 @@ def html_maker_nlp(file_dir):
                 <th scope="col" style="text-align: center" class="fw-bold text-success">
                 DataPoints
                 <sup>
-                    <span type="button"  tabindex="0" data-bs-toggle="popover" title="DataPoints are smaller than Citations, because some of our citations are for example Personal Comments, and therefore not really useful for NLP project" data-bs-html="true" data-bs-trigger="focus" data-bs-content='DataPoints are smaller than Citations, because some of our citations are for example Personal Comments, and therefore not really useful for NLP project'>&nbsp;<i class="fa-regular fa-circle-question"></i></span>
+                    <span type="button"  tabindex="0" data-bs-toggle="popover" title="Why smaller than citations?" data-bs-html="true" data-bs-trigger="focus" data-bs-content='DataPoints are smaller than Citations, because some of our citations are for example Personal Comments, and therefore not really useful for NLP project'>&nbsp;<i class="fa-regular fa-circle-question"></i></span>
                 </sup>
                 </th>
                 <th scope="col" style="text-align: center" class="fw-bold text-success">has Zotero? (visible)</th>
@@ -725,6 +911,19 @@ def html_maker_nlp(file_dir):
                     </tr>"""
         count+=1
         all_my_rows.append(my_template)
+        # update the dictionary:
+        all_my_rows_dic[kk] = {
+            "citations": len(vv),
+            "datapoints": len(vv) - has_pers_comm,
+            "has_zotero": has_vis_zotero_count + has_concluded_zotero,
+            "has_pages": has_pages_count,
+            "has_1_page": has_pages_1_count,
+            "has_2_5_pages": has_pages_count_2_5,
+            "has_6_plus_pages": has_pages_count_5,
+            "has_PDF": has_PDF,
+            "has_TXT": has_TXT,
+        }
+
         
     all_my_rows.append("""
                 </tbody>
@@ -732,12 +931,20 @@ def html_maker_nlp(file_dir):
         </div>
     
     </div>
-
+    <script>
+        var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+        var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+          return new bootstrap.Popover(popoverTriggerEl)
+        })
+    </script>
     {% endblock %}
     """)
     full_string = "".join(all_my_rows)
     with open(f"to_be_transported_to_django_{file_dir}.html", "w", encoding='utf-8') as fw:
         fw.write(full_string)
+    
+    with open(f"json_files/nlp_statistics_for_{file_dir}.json", "w") as my_file:
+        json.dump(all_my_rows_dic, my_file)
     print(f"Bad Sectors: {bad_sectors}")
 
 
